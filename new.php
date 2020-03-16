@@ -1,6 +1,16 @@
 <?php
 
+require_once('config.php');
+require_once('functions.php');
+
 session_start();
+$dbh = connectDb();
+
+$sql = "select * from categories";
+$stmt = $dbh->prepare($sql);
+$stmt->execute();
+
+$categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 <!DOCTYPE html>
@@ -41,6 +51,46 @@ session_start();
         </ul>
       </div>
     </nav>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+          <div class="card card-signin my-5 bg-light">
+            <div class="card-body">
+              <h5 class="card-title text-center">新規記事</h5>
+              <?php if ($errors) : ?>
+                <ul class="alert alert-danger">
+                  <?php foreach ($errors as $error) : ?>
+                    <li><?php echo $error; ?></li>
+                  <?php endforeach; ?>
+                </ul>
+              <?php endif; ?>
+              <form action="new.php" method="post">
+                <div class="form-group">
+                  <label for="title">タイトル</label>
+                  <input type="text" name="title" id="" class="form-control" autofocus required>
+                </div>
+                <div class="form-group">
+                  <label for="category_id">カテゴリー</label>
+                  <select name="category_id" class="form-control" required>
+                    <option value="" disabled selected>選択して下さい</option>
+                    <?php foreach ($categories as $c) : ?>
+                      <option value="<?php echo $c['id']; ?>"><?php echo $c['name']; ?></option>
+                    <?php endforeach; ?>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="body">本文</label>
+                  <textarea name="body" id="" cols="30" rows="10" class="form-control" required></textarea>
+                </div>
+                <div class="form-group">
+                  <input type="submit" value="登録" class="btn btn-lg btn-primary btn-block">
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <footer class="footer font-small bg-dark">
       <div class="footer-copyright text-center py-3 text-light">&copy; 2020 Camp Blog</div>
     </footer>
