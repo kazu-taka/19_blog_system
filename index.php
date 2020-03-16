@@ -1,7 +1,32 @@
 <?php
 
+require_once('config.php');
+require_once('functions.php');
+
 session_start();
 
+$dbh = connectDb();
+
+$sql = <<<SQL
+select
+  p.*,
+  c.name,
+  u.name as user_name
+from
+  posts p
+left join
+  categories c
+on p.category_id = c.id
+left join
+  users u
+on p.user_id = u.id
+order by
+  p.created_at desc
+SQL;
+
+$stmt = $dbh->prepare($sql);
+$stmt->execute();
+$posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -41,6 +66,22 @@ session_start();
         </ul>
       </div>
     </nav>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-11 col-md-10 col-lg-9 mx-auto">
+          <?php foreach ($posts as $post) : ?>
+            <div class="article">
+              <h2>タイトル：<?php echo h($post['title']); ?></h2>
+              <p>著者：<?php echo h($post['user_name']); ?></p>
+              <p>作成日：<?php echo h($post['created_at']); ?></p>
+              <p><?php echo nl2br(h(mb_strimwidth($post['body'], 0, 50, "..."))); ?></p>
+              <a href="show.php?id=<?php echo h($post['id']); ?>" class="btn btn-info">続きを読む</a>
+            </div>
+            <hr>
+          <?php endforeach; ?>
+        </div>
+      </div>
+    </div>
     <footer class="footer font-small bg-dark">
       <div class="footer-copyright text-center py-3 text-light">&copy; 2020 Camp Blog</div>
     </footer>
