@@ -5,7 +5,7 @@ require_once('functions.php');
 
 session_start();
 
-$id = $_GET['id'];
+$id = $_REQUEST['id'];
 if (!is_numeric($id)) {
   header('Location: index.php');
   exit;
@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     set
       title = :title,
       body = :body,
-      category_id = :cotegory_id
+      category_id = :category_id
     where
       id = :id
     SQL;
@@ -123,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   <?php endforeach; ?>
                 </ul>
               <?php endif; ?>
-              <form action="new.php" method="post">
+              <form action="edit.php" method="post">
                 <div class="form-group">
                   <label for="title">タイトル</label>
                   <input type="text" name="title" id="" class="form-control" autofocus required value="<?php echo h($post['title']); ?>">
@@ -143,6 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   <label for="body">本文</label>
                   <textarea name="body" id="" cols="30" rows="10" class="form-control" required><?php echo h($post['body']); ?></textarea>
                 </div>
+                <input type="hidden" name="id" value="<?php echo h($post['id']); ?>">
                 <div class="form-group">
                   <input type="submit" value="更新" class="btn btn-lg btn-primary btn-block">
                 </div>
