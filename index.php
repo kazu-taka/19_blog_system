@@ -1,51 +1,17 @@
 <?php
 
-require_once('config.php');
 require_once('functions.php');
+require_once('posts.php');
+require_once('categories.php');
 
 session_start();
 
-$dbh = connectDb();
+// 記事の一覧情報取得
+$posts = getPostsFindByCategoryId($_GET['category_id']);
 
-$sql = <<<SQL
-select
-  p.*,
-  c.name,
-  u.name as user_name
-from
-  posts p
-left join
-  categories c
-on p.category_id = c.id
-left join
-  users u
-on p.user_id = u.id
-SQL;
+// カテゴリーデータ取得
+$categories = getAllCategories();
 
-if (isset($_GET['category_id']) &&
-    is_numeric($_GET['category_id'])) {
-  $category_id = $_GET['category_id'];
-  $sql_where = " where p.category_id = :category_id";
-} else {
-  $sql_where = "";
-}
-
-$sql_order = " order by p.created_at desc";
-
-// SQL結合
-$sql = $sql . $sql_where . $sql_order;
-
-$stmt = $dbh->prepare($sql);
-if ($category_id) {
-  $stmt->bindParam(":category_id", $category_id, PDO::PARAM_INT);
-}
-$stmt->execute();
-$posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$sql = "select id, name from categories order by id";
-$stmt = $dbh->prepare($sql);
-$stmt->execute();
-$categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="ja">
